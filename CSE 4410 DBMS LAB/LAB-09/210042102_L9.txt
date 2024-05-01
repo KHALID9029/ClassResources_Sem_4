@@ -1,0 +1,256 @@
+1) Create a database named "Social Media".[You can breakdown all the information into two
+collections namely users and posts.]
+
+ANS: use SocialMedia
+    db.createCollection(Users)
+    db.createCollection(Users)
+
+
+
+
+2) In case of the user’s document make sure a user must have to provide his/her name, password,
+and email. [hint: use validator]
+
+
+ANS:
+
+db. runCommand ( 
+{
+    collMod: "Users",
+    validator : 
+    {
+        $jsonSchema : 
+        {
+            required : [ "name", "email", "password" ] ,
+            
+            properties : 
+            {
+                name : 
+                {
+                    bsonType : "string",
+                    description : " name string required "
+                } ,
+                email : 
+                {
+                    bsonType : "string",
+                    description : " valid email required "
+                } ,
+                password : 
+                {
+                    bsonType : "string",
+                    description : "password string required "
+                }
+            }
+        }
+    }
+}); 
+
+
+
+
+
+3) In case of the post’s document there must be content. [hint: use validator]
+
+ANS:
+
+db.runCommand(
+    {
+        collMod: "posts",
+        validator:
+        {
+            $jsonSchema:
+            {
+                required:["content"],
+
+                properties:
+                {
+                    content:
+                    {
+                        bsonType:"string",
+                        description:"content required"
+                    }
+                }
+            }
+        }
+    }
+);
+
+
+
+
+
+
+4)  Insertion
+
+a) An entry of a user with only email, name and password.
+
+ db.Users.insertOne({
+    name: "Khalid Hasan",
+    email: "hasankhalid441@gmail.com",
+    password: "210042102",
+});
+
+
+b) An entry of users with basic info and hobbies (consider a user may have multiple hobbies).
+
+ db.Users.insertOne({
+    name: "Shuvro Vai",
+    email: "suvro@gmail.com",
+    password: "2",
+    hobbies: ["Cricket", "Football", "Badminton"],
+});
+
+
+c) Two entries of users with basic info and telephone number (work and personal). [hint:
+use insertMany]
+
+db.Users.insertMany([{
+    name: "Shuvro Vai",
+    email: "shuvro@gmail.com",
+    password: "210042102",
+    telephone: [
+        {
+            work: "01700000000",
+            personal: "01700000000"
+        }
+    ]
+},
+{
+    name: "Mir Sayad",
+    email: "mir@gmail.com",
+    password: "2",
+    telephone: [
+        {
+            work: "01700000000",
+            personal: "01700000000"
+        }
+    ]
+}]);
+
+
+
+
+d) Four posts with the content, creation time. [hint: use insertMany]
+
+db.posts.insertMany([
+    {
+        content:"Hudai Post",
+        date: Date()
+    },
+    {
+        content: "Post 2",
+        date: Date()
+    },
+    {
+        content: "Post 3",
+        date: Date()
+    },
+    {
+        content: "Post 4",
+        date: Date()
+    }
+]);
+
+
+
+
+5) UPDATE
+
+a) Add multiple followers for multiple users.
+
+
+db.Users.updateMany(
+    {name: {$in:["Khalid Hasan","Shuvro Vai"]}},
+    {$push: {followers:{$each:["Mainul","Hamim"]} }}
+);
+
+
+b) Add multiple friends for multiple users
+
+
+db.Users.updateMany(
+    {name: {$in:["Khalid Hasan","Shuvro Vai",]}},
+    {$push: {friends:{$each:["Mainul","Hamim"]} }}
+);
+
+
+
+
+
+c) Add multiple users who like a post.
+
+db.posts.updateMany(
+    {content: {$in:["Hudai Post","Post 2","Post 3"]}},
+    {$push:{liker:{$each:["Khalid","Shuvro","Hamim"]}}}
+);
+
+
+
+
+d) Add at least two comments for two posts with the commenters
+
+db.posts.updateMany(
+    {content: {$in:["Hudai Post","Post 2"]}},
+    {$push:{comments:{$each:[{commenter:"Khalid",comment:"Agun"},{commenter:"Shuvro",comment:"Good Post"}]}}}
+);
+
+
+
+
+
+
+
+
+
+6) DATA Retrieving
+
+a) Display the total number of posts
+
+ANS: db.posts.find().count();
+
+
+
+b) Display the most recent to oldest posts along with their poster(s).
+
+ANS: db.posts.find({},{poster:1}).sort({date:-1});
+
+
+
+c)  Show all the posts that were created from yesterday
+
+ANS: db.posts.find({date:Date()-1});
+
+
+d) Show all the users who are following more than 3 users.
+
+ANS: db.users.find({following:{$size:{$gt:3}}});
+
+
+e) Show all the users who were born within 1990-2000.
+
+ANS: db.users.find({dob:{$gte:new Date("1990-01-01"),$lte:new Date("2000-12-31")}});
+
+
+f) Show three profiles that were created the earliest
+
+ANS: db.users.find().sort({date:1}).limit(3);
+
+
+
+g) Show all the posts where commenter "ABC" commented
+
+ANS: db.posts.find({"comments.commenter":"ABC"});
+
+
+h) Show the user’s detail who posted "Life is too good".
+
+ANS: db.users.find({name:db.posts.findOne({content:"Life is too good"}).poster});
+
+
+
+
+
+
+7) Delete the users who don’t have any work phone number.
+
+ANS: db.users.deleteMany({work_phone:{$exists:false}});
