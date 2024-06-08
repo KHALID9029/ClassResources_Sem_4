@@ -10,7 +10,7 @@ void prims(vector<pair<ll,ll>> adj[],ll n)
     vector<ll> key(n+1,INF);
     vector<ll> parent(n+1,-1);
     vector<bool> mst(n+1,false);
-    priority_queue<pair<ll,ll>,vector<pair<ll,ll>>,greater<pair<ll,ll>>> pq;
+    priority_queue<pair<ll,ll>,vector<pair<ll,ll>>,greater<pair<ll,ll>>> pq; // Greater is used to get the minimum element at the top
     key[1]=0;
     pq.push({0,1});
     while(!pq.empty())
